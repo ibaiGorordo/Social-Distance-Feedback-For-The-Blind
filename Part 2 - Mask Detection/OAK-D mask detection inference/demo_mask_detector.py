@@ -30,7 +30,7 @@ while True:
     if ret:
         frame_count = calculate_frame_speed()
         nn_frame = show_mobilenet_ssd(nnet_prev["entries_prev"]['rgb'], frame, is_depth=0)
-        cv2.putText(nn_frame, "fps: " + str(frame_count), (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0))
+        cv2.putText(nn_frame, "fps: " + str(frame_count), (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (50, 50, 50),2)
         cv2.imshow("Mask detection", nn_frame)
 
     key = cv2.waitKey(1)

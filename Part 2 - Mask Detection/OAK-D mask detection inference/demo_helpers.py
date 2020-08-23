@@ -5,6 +5,8 @@ from pathlib import Path
 
 import consts.resource_paths
 
+colors = [(22,22,250),(214,202,18),(22,22,250)]
+
 model_location = str(Path('models').resolve())
 blob_file = str(Path(model_location, 'model.blob').absolute())
 blob_file_config = str(Path(model_location, 'config.json').absolute())
@@ -130,6 +132,7 @@ def average_depth_coord(pt1, pt2):
     return avg_pt1, avg_pt2
 
 def show_mobilenet_ssd(entries_prev, frame, is_depth=0):
+    frame = cv2.resize(frame,((600,600)))
     img_h = frame.shape[0]
     img_w = frame.shape[1]
 
@@ -145,20 +148,18 @@ def show_mobilenet_ssd(entries_prev, frame, is_depth=0):
         else:
             pt1 = int(e[0]['left']  * img_w), int(e[0]['top']    * img_h)
             pt2 = int(e[0]['right'] * img_w), int(e[0]['bottom'] * img_h)
-            color = (0, 0, 255) # bgr
+            color = colors[int(e[0]['label'])-1] # bgr
 
         x1, y1 = pt1
 
-        cv2.rectangle(frame, pt1, pt2, color)
+        cv2.rectangle(frame, pt1, pt2, color, 4)
         # Handles case where TensorEntry object label is out if range
         if e[0]['label'] > len(labels):
             print("Label index=",e[0]['label'], "is out of range. Not applying text to rectangle.")
         else:
-            pt_t1 = x1, y1 + 20
-            cv2.putText(frame, labels[int(e[0]['label'])], pt_t1, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-            pt_t2 = x1, y1 + 40
-            cv2.putText(frame, '{:.2f}'.format(100*e[0]['confidence']) + ' %', pt_t2, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color)
+            cv2.putText(frame, '{}:  {:.2f}'.format(labels[int(e[0]['label'])],100*e[0]['confidence']) + ' %', (x1,y1-10), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 4)
+            #cv2.putText(frame, '{:.2f}'.format(100*e[0]['confidence']) + ' %', pt_t2, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color,2)
             if config['ai']['calc_dist_to_bb']:
                 pt_t3 = x1, y1 + 60
                 cv2.putText(frame, 'x:' '{:7.3f}'.format(e[0]['distance_x']) + ' m', pt_t3, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color)
