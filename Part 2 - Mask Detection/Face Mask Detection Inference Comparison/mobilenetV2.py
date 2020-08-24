@@ -1,8 +1,6 @@
 import numpy as np
 import tensorflow as tf
 import cv2
-import pathlib
-import time
 import six
 
 from object_detection.utils import label_map_util
@@ -15,7 +13,7 @@ class mobilenetV2_SSD():
 	def __init__(self, model_path, label_path):
 		self.load_model(model_path)
 		self.load_labels(label_path)
-		self.colors = [(22,22,250),(214,202,18)]
+		self.colors = [(22, 22, 250), (214, 202, 18)]
 
 	def load_model(self, model_path):
 		# Load a (frozen) Tensorflow model into memory.
@@ -27,15 +25,13 @@ class mobilenetV2_SSD():
 				od_graph_def.ParseFromString(serialized_graph)
 				tf.import_graph_def(od_graph_def, name='')
 				with detection_graph.as_default():
-					self.sess = tf.Session(graph=detection_graph)
+					self.sess = tf.compat.v1.Session(graph=detection_graph)
 					self.detection_graph = detection_graph
 
 	def load_labels(self,label_path):
 		self.category_index = label_map_util.create_category_index_from_labelmap(label_path, use_display_name=True)
 
 	def run_inference_for_single_image(self, image_np):
-		
-		# Expand dimensions since the model expects images to have shape: [1, None, None, 3]
 		image_np_expanded = np.expand_dims(image_np, axis=0)
 		# Extract image tensor
 		image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
@@ -61,8 +57,6 @@ class mobilenetV2_SSD():
 		boxes = np.squeeze(output_dict['detection_boxes'])
 		scores = np.squeeze(output_dict['detection_scores'])
 		classes = np.squeeze(output_dict['detection_classes']).astype(np.int32)
-
-		num_detections = boxes.shape[0]
 
 		for (score, label, box) in zip(scores, classes, boxes):
 			if scores is None or score > min_score:
