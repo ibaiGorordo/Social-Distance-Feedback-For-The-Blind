@@ -9,6 +9,12 @@ import consts.resource_paths
 
 frame_info = []
 
+def step_norm(value):
+    return round(value / 0.03) * 0.03
+
+def tst(packet):
+    return packet.getMetadata().getTimestamp()
+
 def capture_image(data_packets):
     ret = 0
     frame = 0
@@ -34,13 +40,13 @@ def capture_image(data_packets):
             data2 = packetData[2,:,:]
             frame = cv2.merge([data0, data1, data2])
 
-            img_path = store_path + str(packet_num) + "_" + packet.stream_name + ".jpg"
+            img_path = store_path + str(round(step_norm(tst(packet)),2)) + "_" + packet.stream_name + ".jpg"
             cv2.imwrite(img_path, frame)
 
         elif packet.stream_name == 'left' or packet.stream_name == 'right' or packet.stream_name == 'disparity':
             frame = packetData
 
-            img_path = store_path + str(packet_num) + "_" + packet.stream_name + ".jpg"
+            img_path = store_path + str(round(step_norm(tst(packet)),2))  + "_" + packet.stream_name + ".jpg"
             cv2.imwrite(img_path, frame)
 
 model_name = "person-vehicle-bike-detection-crossroad-1016"
